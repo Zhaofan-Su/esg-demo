@@ -1,0 +1,57 @@
+package com.pwccn.esg.dto;
+
+import com.pwccn.esg.model.Role;
+import com.pwccn.esg.model.UserEntity;
+
+import java.util.List;
+
+public class UserDTO {
+
+    private Integer id;
+    private String username;
+    private String password;
+    private List<Role> roles;
+
+    public UserDTO(){
+
+    }
+
+    public UserDTO(UserEntity userEntity){
+        id = userEntity.getId();
+        username = userEntity.getUsername();
+        password = userEntity.getPassword();
+        roles = userEntity.getRoles();
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+}
