@@ -6,7 +6,7 @@
     <groupId>com.pwccn</groupId>
     <artifactId>esg</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>esg</name>
     <description>ESG project with Spring Boot</description>
