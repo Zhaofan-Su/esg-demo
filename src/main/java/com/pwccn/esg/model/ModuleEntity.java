@@ -21,10 +21,7 @@ public class ModuleEntity {
     @ManyToMany(mappedBy = "modules", fetch = FetchType.LAZY)
     private Set<TemplateEntity> templates = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "module_has_indicator",
-            joinColumns = @JoinColumn(name = "module_id"),
-            inverseJoinColumns = @JoinColumn(name = "indicator_id"))
+    @OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
     private Set<IndicatorEntity> indicators = new HashSet<>();
 
     public ModuleEntity() {

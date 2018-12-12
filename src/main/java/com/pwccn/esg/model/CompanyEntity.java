@@ -1,6 +1,10 @@
 package com.pwccn.esg.model;
 
+import com.pwccn.esg.dto.CompanyDTO;
+import com.pwccn.esg.dto.UserDTO;
+
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,20 +17,31 @@ public class CompanyEntity {
 
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "company_users",
-            joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private String industry;
+
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserEntity> users;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "company_template",
-            joinColumns = @JoinColumn(name = "company_id"),
-            inverseJoinColumns = @JoinColumn(name = "template_id"))
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "template_id")
     private TemplateEntity templateEntity;
 
 
 
+    public CompanyEntity() {
+
+    }
+
+    public CompanyEntity(CompanyDTO companyDTO) {
+        setId(companyDTO.getId());
+        setName(companyDTO.getName());
+        setIndustry(companyDTO.getIndustry());
+        List<UserEntity> userEntities = new ArrayList<>();
+        for(UserDTO dto : companyDTO.getUsers()) {
+            userEntities.add(new UserEntity(dto));
+        }
+        setUsers(userEntities);
+    }
     public void setTemplateEntity(TemplateEntity templateEntity) {
         this.templateEntity = templateEntity;
     }
@@ -59,5 +74,11 @@ public class CompanyEntity {
         this.users = users;
     }
 
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
 
+    public String getIndustry() {
+        return industry;
+    }
 }

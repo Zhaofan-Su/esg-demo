@@ -23,7 +23,6 @@ USE esg ;
 CREATE TABLE IF NOT EXISTS esg.`template` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
-  `user_entity_id` INT NOT NULL ,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -38,15 +37,6 @@ CREATE TABLE IF NOT EXISTS esg.`module` (
 ENGINE = InnoDB;
 
 
--- -----------------------------------------------------
--- Table `esg_dev`.`indicator_unit`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS esg.`indicator_unit` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `esg_dev`.`indicator`
@@ -55,23 +45,34 @@ CREATE TABLE IF NOT EXISTS esg.`indicator` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `level` INT NOT NULL,
-  `type` TINYINT NULL,
+  `description` VARCHAR(255) NULL,
+  `type` VARCHAR(255) NULL,
   `parent` INT NULL,
-  `unit` INT NULL,
+  `company_id` INT NULL,
+  `data_id` INT NULL,
+  `module_id` INT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_indicator_parent_idx` (`parent` ASC),
-  INDEX `fk_indicator_unit1_idx` (`unit` ASC),
   CONSTRAINT `fk_indicator_parent`
     FOREIGN KEY (`parent`)
     REFERENCES esg.`indicator` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_indicator_unit1`
-    FOREIGN KEY (`unit`)
-    REFERENCES esg.`indicator_unit` (`id`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `esg_dev`.`indicator_data`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esg.`indicator_data` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `unit` VARCHAR(45) NULL,
+  `context` VARCHAR(255) NULL,
+  `sections` VARCHAR(255) NULL,
+  `new_context` VARCHAR(255) NULL,
+  `new_sections` VARCHAR(255) NULL,
+  PRIMARY KEY (`id`))
+  ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -97,35 +98,18 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`module_has_indicator`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS esg.`module_has_indicator` (
-  `module_id` INT NOT NULL AUTO_INCREMENT,
-  `indicator_id` INT NOT NULL,
-  PRIMARY KEY (`module_id`, `indicator_id`),
-  INDEX `fk_module_has_indicator_indicator1_idx` (`indicator_id` ASC),
-  INDEX `fk_module_has_indicator_module1_idx` (`module_id` ASC),
-  CONSTRAINT `fk_module_has_indicator_module1`
-    FOREIGN KEY (`module_id`)
-    REFERENCES esg.`module` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_module_has_indicator_indicator1`
-    FOREIGN KEY (`indicator_id`)
-    REFERENCES esg.`indicator` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `esg_dev`.`user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`user` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(255) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id`))
+  `company_id` INT,
+  PRIMARY KEY (`id`),
+  INDEX `fk_user_company1`(`company_id`),
+  CONSTRAINT `fk_user_company1`
+  FOREIGN KEY (`company_id`)
+  REFERENCES esg.`company` (`id`))
 ENGINE = InnoDB;
 
 
@@ -169,74 +153,9 @@ CREATE TABLE IF NOT EXISTS esg.`user_roles` (
 CREATE TABLE IF NOT EXISTS esg.`company` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
+  `template_id` INT NULL,
+  `industry` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`))
-  ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `esg_dev`.`company_users`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS esg.`company_users` (
-  `company_id` INT NOT NULL,
-  `user_id` INT NOT NULL,
-  PRIMARY KEY (`company_id`, `user_id`),
-  INDEX `fk_company_users_company1_idx` (`company_id` ASC),
-  INDEX `fk_company_users_user1_idx` (`user_id` ASC),
-  CONSTRAINT `fk_company_users_company1`
-  FOREIGN KEY (`company_id`)
-  REFERENCES esg.`company` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_company_users_user1`
-  FOREIGN KEY (`user_id`)
-  REFERENCES esg.`user` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-  ENGINE = InnoDB;
-
-
-
--- -----------------------------------------------------
--- Table `esg_dev`.`company_template`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS esg.`company_template` (
-  `company_id` INT NOT NULL,
-  `template_id` INT NOT NULL,
-  PRIMARY KEY (`company_id`),
-  INDEX `fk_company_template_company1_idx` (`company_id` ASC),
-  INDEX `fk_company_template_user1_idx` (`template_id` ASC),
-  CONSTRAINT `fk_company_template_company1`
-  FOREIGN KEY (`company_id`)
-  REFERENCES esg.`company` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_company_template_template1`
-  FOREIGN KEY (`template_id`)
-  REFERENCES esg.`template` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-  ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `esg_dev`.`indicator_for_company`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS esg.`indicator_for_company` (
-  `indicator_id` INT NOT NULL,
-  `company_id` INT NOT NULL,
-  PRIMARY KEY (`indicator_id`, `company_id`),
-  INDEX `fk_indicator_for_company_indicator1_idx` (`indicator_id` ASC),
-  INDEX `fk_indicator_for_company_company1_idx` (`company_id` ASC),
-  CONSTRAINT `fk_indicator_for_company_company1`
-  FOREIGN KEY (`company_id`)
-  REFERENCES esg.`company` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_indicator_for_company_indicator1`
-  FOREIGN KEY (`indicator_id`)
-  REFERENCES esg.`indicator` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 

@@ -3,8 +3,6 @@
   <component name="dataSourceStorageLocal">
     <data-source name="@localhost" uuid="4183d06b-fa96-4fad-9e02-76c9a02c0160">
       <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" />
-      <secret-storage>master_key</secret-storage>
-      <first-sync>true</first-sync>
     </data-source>
   </component>
 </project>

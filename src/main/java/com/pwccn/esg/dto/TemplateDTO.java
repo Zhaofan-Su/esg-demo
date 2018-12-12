@@ -7,6 +7,7 @@ public class TemplateDTO {
     private Integer id;
     private String name;
     private String companyName;
+    private Integer companyId;
 
     public TemplateDTO() {
     }
@@ -15,6 +16,16 @@ public class TemplateDTO {
         setId(template.getId());
         setName(template.getName());
         setCompanyName(template.getCompanyEntity().getName());
+        setCompanyId(template.getCompanyEntity().getId());
+
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getCompanyName() {
+        return companyName;
     }
 
     public Integer getId() {
@@ -33,11 +44,12 @@ public class TemplateDTO {
         this.name = name;
     }
 
-    public String getCompanyName() {
-        return companyName;
+
+    public Integer getCompanyId() {
+        return companyId;
     }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
     }
 }

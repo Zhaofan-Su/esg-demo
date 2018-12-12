@@ -1,6 +1,7 @@
 package com.pwccn.esg.api;
 
 import com.pwccn.esg.dto.ModuleDTO;
+import com.pwccn.esg.dto.UserDTO;
 import com.pwccn.esg.jwt.JWTLoginFilter;
 import com.pwccn.esg.jwt.JwtTokenUtils;
 import com.pwccn.esg.model.CompanyEntity;
@@ -72,24 +73,23 @@ public class UserController {
             @ApiResponse(code = 400, message = "Bad Request"),
     })
     @PostMapping("/login")
-    public ResponseEntity<String> login(String username, String password, HttpServletResponse response) {
+    public ResponseEntity<UserDTO> login(String username, String password, HttpServletResponse response) {
         UserEntity user = userRepository.findByUsername(username);
 
         if (user == null) {
-            return new ResponseEntity<>("No user", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             //密码不匹配
             if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
-                return new ResponseEntity<>("Wrong password", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             } else {
                 List<Role> roles = user.getRoles();
                 String token = JwtTokenUtils.createToken(username, roles.get(0).getName());
                 // 登录成功后，返回token到header里面
                 response.addHeader("Authorization", JwtTokenUtils.TOKEN_PREFIX + token);
 
-                String auth = user.getAuthorities().toString();
-                auth = auth.substring(1,auth.length()-1);
-                return new ResponseEntity<>(auth, HttpStatus.OK);
+                UserDTO userDTO = new UserDTO(user);
+                return new ResponseEntity<>(userDTO, HttpStatus.OK);
             }
         }
     }
@@ -118,28 +118,28 @@ public class UserController {
 
     }
 
-    @ApiOperation(value = "Get all modules user can see")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Not Found"),
-    })
-    @GetMapping("/getAllModules")
-    public ResponseEntity<Set<ModuleDTO>> getModules(String username) {
-
-        UserEntity user = userRepository.findByUsername(username);
-        CompanyEntity company = user.getCompany();
-
-        Set<ModuleEntity> moduleEntities = company.getTemplateEntity().getModules();
-        if(moduleEntities.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Set<ModuleDTO> result = new HashSet<>();
-            for(ModuleEntity moduleEntity : moduleEntities) {
-                result.add(new ModuleDTO(moduleEntity));
-            }
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        }
-    }
+//    @ApiOperation(value = "Get all modules user can see")
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 200, message = "OK"),
+//            @ApiResponse(code = 404, message = "Not Found"),
+//    })
+//    @GetMapping("/getAllModules")
+//    public ResponseEntity<Set<ModuleDTO>> getModules(String username) {
+//
+//        UserEntity user = userRepository.findByUsername(username);
+//        CompanyEntity company = user.getCompany();
+//
+//        Set<ModuleEntity> moduleEntities = company.getTemplateEntity().getModules();
+//        if(moduleEntities.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        } else {
+//            Set<ModuleDTO> result = new HashSet<>();
+//            for(ModuleEntity moduleEntity : moduleEntities) {
+//                result.add(new ModuleDTO(moduleEntity));
+//            }
+//            return new ResponseEntity<>(result, HttpStatus.OK);
+//        }
+//    }
 
     //改一个用户还没写！！！
 }

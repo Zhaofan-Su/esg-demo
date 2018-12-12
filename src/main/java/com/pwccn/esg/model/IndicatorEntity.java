@@ -19,10 +19,12 @@ public class IndicatorEntity {
 
     private Integer level;
 
+    private String description;
+
+
     /* extensive attributes */
 
-    @Column(columnDefinition = "TINYINT")
-    private Integer type;
+    private String type;
 
     /* internal */
     @Column(name = "parent", insertable = false, updatable = false)
@@ -30,8 +32,9 @@ public class IndicatorEntity {
 
     /* relationship */
 
-    @ManyToMany(mappedBy = "indicators", fetch = FetchType.LAZY)
-    private Set<ModuleEntity> modules = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "module_id")
+    private ModuleEntity module;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent")
@@ -40,28 +43,31 @@ public class IndicatorEntity {
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private Set<IndicatorEntity> children = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "unit")
-    private IndicatorUnitEntity unit;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "data_id")
+    private IndicatorDataEntity indicatorData;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "indicator_for_company",
-            joinColumns = @JoinColumn(name = "indicator_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id"))
+    @JoinColumn(name = "company_id")
     private CompanyEntity company;
 
     public IndicatorEntity() {
     }
 
-    public static void DTO2Entity(IndicatorEntity entity, IndicatorDTO dto, boolean setID, IndicatorEntity parent, IndicatorUnitEntity unit) {
-        if (setID) {
+    public static void DTO2Entity(IndicatorEntity entity, IndicatorDTO dto, boolean setID, IndicatorEntity parent) {
+        if(setID) {
             entity.setId(dto.getId());
         }
         entity.setName(dto.getName());
         entity.setLevel(dto.getLevel());
         entity.setType(dto.getType());
         entity.setParent(parent);
-        entity.setUnit(unit);
+        entity.setDescription(dto.getDescription());
+        if(dto.getLevel() == 3){
+            entity.setIndicatorData(new IndicatorDataEntity(dto.getIndicatorDataDTO()));
+        } else {
+            entity.setIndicatorData(null);
+        }
     }
 
     public Integer getId() {
@@ -88,11 +94,11 @@ public class IndicatorEntity {
         this.level = level;
     }
 
-    public Integer getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -100,8 +106,12 @@ public class IndicatorEntity {
         return parentId;
     }
 
-    public Set<ModuleEntity> getModules() {
-        return modules;
+    public ModuleEntity getModule() {
+        return module;
+    }
+
+    public void setModule(ModuleEntity module) {
+        this.module = module;
     }
 
     public IndicatorEntity getParent() {
@@ -116,13 +126,6 @@ public class IndicatorEntity {
         return children;
     }
 
-    public IndicatorUnitEntity getUnit() {
-        return unit;
-    }
-
-    public void setUnit(IndicatorUnitEntity unit) {
-        this.unit = unit;
-    }
 
     public CompanyEntity getCompany() {
         return company;
@@ -130,5 +133,21 @@ public class IndicatorEntity {
 
     public void setCompany(CompanyEntity company) {
         this.company = company;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public IndicatorDataEntity getIndicatorData() {
+        return indicatorData;
+    }
+
+    public void setIndicatorData(IndicatorDataEntity indicatorDataEntity) {
+        this.indicatorData = indicatorDataEntity;
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.util.*;
@@ -22,10 +23,8 @@ public class UserEntity implements UserDetails {
 
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "company_users",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "company_id"))
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "company_id")
     private CompanyEntity company;
 
 
@@ -34,6 +33,16 @@ public class UserEntity implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
+
+    public UserEntity() {
+
+    }
+
+    public UserEntity(UserDTO userDTO) {
+        setId(userDTO.getId());
+        setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword()));
+        setUsername(userDTO.getUsername());
+    }
 
 
     public Integer getId() {
@@ -70,14 +79,6 @@ public class UserEntity implements UserDetails {
         return company;
     }
 
-    public static void DTO2Entity(UserEntity entity, UserDTO dto, boolean setID){
-        if(setID){
-            entity.setId(dto.getId());
-            entity.setPassword(dto.getPassword());
-            entity.setUsername(dto.getUsername());
-            entity.setRoles(dto.getRoles());
-        }
-    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> auths = new ArrayList<>();
