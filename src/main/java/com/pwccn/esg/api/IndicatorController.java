@@ -50,17 +50,17 @@ public class IndicatorController {
 //        return new ResponseEntity<>(indicatorDTOs, HttpStatus.OK);
 //    }
 
-    @ApiOperation(
-            value = "Create an indicator.", code = 201,
-            notes = "The id in the request body is ignored. " +
-                    "HTTP code 201 will be returned if the module is successfully created."
-    )
+    @ApiOperation(value = "Level 1 admin create an indicator for a company.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Created", response = IndicatorDTO.class)
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN1')")
     public ResponseEntity<Integer> create(@RequestBody IndicatorDTO indicatorDTO) {
+        if(indicatorRepository.findById(indicatorDTO.getId()).isPresent()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         Optional<IndicatorEntity> parentOption = indicatorRepository.findById(indicatorDTO.getParent());
         IndicatorEntity parent = new IndicatorEntity();
         if(parentOption.isPresent()) {
@@ -110,13 +110,10 @@ public class IndicatorController {
 //                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 //    }
 
-    @ApiOperation(
-            value = "Update a indicator's attributes by id.",
-            notes = "ALL FIELDS instead of CHANGED ONES should be present in the request body."
-    )
+    @ApiOperation(value = "Level 1 admin update a indicator's attributes by id.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok", response = IndicatorDTO.class),
-            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 200, message = "Ok"),
+            @ApiResponse(code = 404, message = "Not Found"),
     })
     @PutMapping(path = "/update")
     @PreAuthorize("hasRole('ROLE_ADMIN1')")
@@ -134,17 +131,19 @@ public class IndicatorController {
         return new ResponseEntity<>(new IndicatorDTO(result), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Update a level 3 indicator's data")
+    @ApiOperation(value = "Data operators update a level 3 indicator's data")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "Bad Request"),
     })
+    //@PreAuthorize("hasRole('ROLE_OPERATOR')")
     @PutMapping(path = "/updateData")
     public ResponseEntity updateData (@RequestBody IndicatorDTO indicatorDTO) {
         IndicatorEntity indicatorEntity = indicatorRepository.getOne(indicatorDTO.getId());
         IndicatorDataEntity indicatorDataEntity = indicatorDataRepository.getOne(indicatorDTO.getIndicatorDataDTO().getId());
         indicatorDataEntity.setSections(indicatorDTO.getIndicatorDataDTO().getSections());
         indicatorDataEntity.setContext(indicatorDTO.getIndicatorDataDTO().getContext());
+        indicatorDataEntity.setStatus("待审核");
         indicatorEntity.setIndicatorData(indicatorDataEntity);
         indicatorDataRepository.save(indicatorDataEntity);
         indicatorRepository.save(indicatorEntity);
@@ -153,8 +152,9 @@ public class IndicatorController {
 
     }
 
-    @ApiOperation(value = "Delete a indicator by id.")
+    @ApiOperation(value = "Level 1 admin delete a indicator by id.")
     @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @DeleteMapping(path = "/{id}")
@@ -164,7 +164,6 @@ public class IndicatorController {
         if (indicator == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
         if(indicator.getLevel() == 3) {
             //delete the indicator's data
             indicatorDataRepository.delete(indicator.getIndicatorData());
@@ -184,9 +183,7 @@ public class IndicatorController {
                     indicatorRepository.delete(indicatorEntity);
                 }
             }
-
         }
-        //indicator.setParent(null);
         indicatorRepository.delete(indicator);
         return new ResponseEntity<>(HttpStatus.OK);
     }

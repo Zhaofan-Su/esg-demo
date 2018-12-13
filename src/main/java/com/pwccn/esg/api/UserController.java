@@ -46,22 +46,43 @@ public class UserController {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN2')")
-    @ApiOperation(value = "Create a user")
+
+    @ApiOperation(value = "Level 2 admin create a user")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 404, message = "Not Found")
     })
+    @PreAuthorize("hasRole('ROLE_ADMIN2')")
     @PostMapping("/create")
-    public ResponseEntity<String> creat(String username, String password, String userType, String company) {
-        UserEntity userToCreate = new UserEntity();
-        userToCreate.setUsername(username);
-        userToCreate.setPassword(bCryptPasswordEncoder.encode(password));
-        CompanyEntity companyEntity = companyRepository.findByName(company);
-        userToCreate.setCompany(companyEntity);
-        Role role = roleRepository.findByName(userType);
+    public ResponseEntity<String> creat(@RequestBody UserDTO userDTO) {
+//        UserEntity userToCreate = new UserEntity();
+//        userToCreate.setUsername(username);
+//        userToCreate.setPassword(bCryptPasswordEncoder.encode(password));
+//        CompanyEntity companyEntity = companyRepository.findByName(company);
+//        userToCreate.setCompany(companyEntity);
+//        Role role = roleRepository.findByName(userType);
+//        List<Role> roles = new ArrayList<>();
+//        roles.add(role);
+//        userToCreate.setRoles(roles);
+//        userRepository.save(userToCreate);
+//        return new ResponseEntity<>("Create successfully", HttpStatus.OK);
+        CompanyEntity company = companyRepository.getOne(userDTO.getId());
+        if(company == null) {
+            return new ResponseEntity<>("The company is not exiting", HttpStatus.NOT_FOUND);
+        }
+        List<UserEntity> users = company.getUsers();
+        UserEntity userToCreate = new UserEntity(userDTO);
+        for(UserEntity userEntity : users) {
+           if(userEntity.getUsername() == userDTO.getUsername()) {
+               return new ResponseEntity<>("The user " + userDTO.getUsername() + "with role " +
+                       userDTO.getRole() + "has existed", HttpStatus.BAD_REQUEST);
+           }
+        }
         List<Role> roles = new ArrayList<>();
-        roles.add(role);
+        roles.add(roleRepository.findByName(userDTO.getRole()));
         userToCreate.setRoles(roles);
+        userToCreate.setCompany(company);
         userRepository.save(userToCreate);
         return new ResponseEntity<>("Create successfully", HttpStatus.OK);
     }
@@ -94,29 +115,32 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN2')")
-    @ApiOperation(value = "Delete a user")
+
+    @ApiOperation(value = "Level 2 delete a user")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 400, message = "Bad Request"),
 
     })
+    @PreAuthorize("hasRole('ROLE_ADMIN2')")
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(String userName) {
         UserEntity userToDelete = userRepository.findByUsername(userName);
         if(userToDelete == null) {
             return new ResponseEntity<>("Not found", HttpStatus.NOT_FOUND);
         } else {
-            if(userToDelete.getRoles().get(0).getName() == "ROLE_ADMIN2") {
-                return new ResponseEntity<>("Don't have the authority.", HttpStatus.BAD_REQUEST);
-            } else {
-                userRepository.delete(userToDelete);
-                return new ResponseEntity<>("Delete successfully", HttpStatus.OK);
-            }
+            CompanyEntity company = userToDelete.getCompany();
+            company.getUsers().remove(userToDelete);
+            userToDelete.setRoles(null);
+            userToDelete.setCompany(null);
+            userRepository.delete(userToDelete);
+            return new ResponseEntity<>("Delete successfully", HttpStatus.OK);
         }
 
     }
+
+
 
 //    @ApiOperation(value = "Get all modules user can see")
 //    @ApiResponses(value = {

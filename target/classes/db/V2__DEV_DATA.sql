@@ -45,9 +45,9 @@ UNLOCK TABLES;
 LOCK TABLES `indicator_data` WRITE;
 /*!40000 ALTER TABLE `indicator_data` DISABLE KEYS */;
 
-INSERT INTO `indicator_data` (`id`, `unit`, `context`, `sections`,`new_context`,`new_sections`)
+INSERT INTO `indicator_data` (`id`, `unit`, `context`, `sections`,`new_context`,`new_sections`,`status`)
 VALUES
-  (1,'m^3',NULL,'0.1,0.1,0.2,0.1,0.2,0.3,0.2,0.12,0.15,0.23,0.18,0.2',NULL,NULL);
+  (1,'m^3',NULL,'0.1,0.1,0.2,0.1,0.2,0.3,0.2,0.12,0.15,0.23,0.18,0.2',NULL,NULL,'待审核');
 
 /*!40000 ALTER TABLE `indicator_data` ENABLE KEYS */;
 UNLOCK TABLES;

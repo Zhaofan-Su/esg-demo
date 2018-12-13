@@ -18,6 +18,8 @@ public class IndicatorDataEntity {
     private String sections;
     private String newSections;
 
+    private String status;
+
     public IndicatorDataEntity() {
 
     }
@@ -28,6 +30,7 @@ public class IndicatorDataEntity {
         setUnit(indicatorDataDTO.getUnit());
         setNewContext(indicatorDataDTO.getNewContext());
         setNewSections(indicatorDataDTO.getNewSections());
+        setStatus(indicatorDataDTO.getStatus());
     }
     public void setId(Integer id) {
         this.id = id;
@@ -75,5 +78,13 @@ public class IndicatorDataEntity {
 
     public String getNewContext() {
         return newContext;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

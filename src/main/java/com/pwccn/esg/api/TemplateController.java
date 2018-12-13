@@ -47,17 +47,14 @@ public class TemplateController {
         return new ResponseEntity<>(templateDTOs, HttpStatus.OK);
     }
 
-    @ApiOperation(
-            value = "Create a template.", code = 201,
-            notes = "The id in the request body is ignored. " +
-                    "HTTP code 201 will be returned if the template is successfully created."
-    )
+    @ApiOperation(value = "Level 1 admin create a template.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Created", response = TemplateDTO.class),
+            @ApiResponse(code = 201, message = "Created"),
     })
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN1')")
     public ResponseEntity<Integer> create(@RequestBody TemplateDTO templateDTO) {
+
         CompanyEntity companyEntity = companyRepository.findByName(templateDTO.getCompanyName());
         TemplateEntity module = new TemplateEntity(templateDTO);
         module.setCompanyEntity(companyEntity);
@@ -119,7 +116,7 @@ public class TemplateController {
 //        return new ResponseEntity<>(new TemplateDTO(result), HttpStatus.OK);
 //    }
 
-    @ApiOperation(value = "Delete a template by id.")
+    @ApiOperation(value = "Level 1 admin delete a template by id.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Not Found"),
@@ -169,6 +166,22 @@ public class TemplateController {
             moduleDTOs.add(new ModuleDTO(module));
         }
         return new ResponseEntity<>(moduleDTOs, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get the template id by its company's id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Not Found"),
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN2')")
+    @GetMapping(value = "/getTemplateId/{id}")
+    public ResponseEntity<Integer> getTemplateId(@PathVariable Integer id) {
+        CompanyEntity company = companyRepository.getOne(id);
+        if(company == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        TemplateDTO template = new TemplateDTO(company.getTemplateEntity());
+        return new ResponseEntity<>(template.getId(), HttpStatus.OK);
     }
 
 //    @ApiOperation(

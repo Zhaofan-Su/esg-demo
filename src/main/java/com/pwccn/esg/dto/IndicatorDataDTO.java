@@ -12,6 +12,8 @@ public class IndicatorDataDTO {
     private String context;
     private String newContext;
 
+    private String status;
+
     public IndicatorDataDTO() {
 
     }
@@ -23,6 +25,7 @@ public class IndicatorDataDTO {
         setUnit(data.getUnit());
         setNewContext(data.getNewContext());
         setNewSections(data.getNewSections());
+        setStatus(data.getStatus());
     }
 
     public Integer getId() {
@@ -71,5 +74,13 @@ public class IndicatorDataDTO {
 
     public void setNewSections(String newSections) {
         this.newSections = newSections;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

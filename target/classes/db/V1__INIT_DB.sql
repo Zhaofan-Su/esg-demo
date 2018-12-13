@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS esg.`indicator_data` (
   `sections` VARCHAR(255) NULL,
   `new_context` VARCHAR(255) NULL,
   `new_sections` VARCHAR(255) NULL,
+  `status` VARCHAR(255) NULL,
   PRIMARY KEY (`id`))
   ENGINE = InnoDB;
 

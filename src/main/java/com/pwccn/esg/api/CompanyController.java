@@ -121,18 +121,25 @@ public class CompanyController {
 
 
     @ApiOperation(value = "Create a company account.")
-    @ApiResponse(code = 200, message = "create successfully")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Bad Request"),
+    })
     @PostMapping(value = "/create")
     @PreAuthorize("hasRole('ROLE_ADMIN1')")
     public ResponseEntity<String> create(@RequestBody CompanyDTO companyDTO) {
-        List<Role> roles = new ArrayList<>();
-        roles.add(roleRepository.findByName("ROLE_ADMIN2"));
-        CompanyEntity companyEntity = new CompanyEntity(companyDTO);
-        UserEntity userEntity = companyEntity.getUsers().get(0);
-        userEntity.setRoles(roles);
-        userEntity.setCompany(companyRepository.save(companyEntity));
-        userRepository.save(userEntity);
-        return new ResponseEntity("create successfully", HttpStatus.OK);
+        if(companyRepository.findByName(companyDTO.getName()) == null) {
+            List<Role> roles = new ArrayList<>();
+            roles.add(roleRepository.findByName("ROLE_ADMIN2"));
+            CompanyEntity companyEntity = new CompanyEntity(companyDTO);
+            UserEntity userEntity = companyEntity.getUsers().get(0);
+            userEntity.setRoles(roles);
+            userEntity.setCompany(companyRepository.save(companyEntity));
+            userRepository.save(userEntity);
+            return new ResponseEntity("Create a company successfully", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Already have a company with the same name", HttpStatus.BAD_REQUEST);
+
     }
 
     @ApiOperation(value = "Get modules of the company by id")
