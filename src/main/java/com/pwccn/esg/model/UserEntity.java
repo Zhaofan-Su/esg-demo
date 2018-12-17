@@ -23,6 +23,12 @@ public class UserEntity implements UserDetails {
 
     private String password;
 
+    private String contactor;
+
+    private String telephone;
+
+    private String email;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "company_id")
     private CompanyEntity company;
@@ -42,6 +48,9 @@ public class UserEntity implements UserDetails {
         setId(userDTO.getId());
         setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword()));
         setUsername(userDTO.getUsername());
+        setContactor(userDTO.getContactor());
+        setTelephone(userDTO.getTelephone());
+        setEmail(userDTO.getEmail());
     }
 
 
@@ -78,6 +87,31 @@ public class UserEntity implements UserDetails {
     public CompanyEntity getCompany() {
         return company;
     }
+
+    public String getContactor() {
+        return contactor;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setContactor(String contactor) {
+        this.contactor = contactor;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

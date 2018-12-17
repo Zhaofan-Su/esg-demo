@@ -106,6 +106,9 @@ CREATE TABLE IF NOT EXISTS esg.`user` (
   `username` VARCHAR(255) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
   `company_id` INT,
+  `contactor` VARCHAR(255) NULL,
+  `telephone` VARCHAR(255) NULL,
+  `email` VARCHAR(255) NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_user_company1`(`company_id`),
   CONSTRAINT `fk_user_company1`

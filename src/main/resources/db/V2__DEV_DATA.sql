@@ -130,12 +130,12 @@ UNLOCK TABLES;
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 
-INSERT INTO `user` (`id`, `username`,`password`,`company_id`)
+INSERT INTO `user` (`id`, `username`,`password`,`company_id`,`contactor`,`telephone`,`email`)
 VALUES
-	(1,'ADMIN','$2a$10$qe.2q0.icyebaiqar.7TguXLnmgqpVwIFdb53WsNRXBfkpx1..rRC',0),
-	(2,'ADMIN_ABC','$2a$10$XoGCTiHj8H7RchTXgVb8.u03rCUEkdFVvt916VILqUa4k68cnfcKa',1),
-	(3,'ADMIN_DEF','$2a$10$OYCTlY4DQqBX/jQvt5Z8bOWz/xD7BXXVGa4OfP07IdJvrKFsJWPx2',2),
-  (4,'ADMIN_JDK','$2a$10$.kbEUwW1pHChwYua0UWlQ.ELTJRpoYBNKHtceXQZl8wvgdjxm.ocC',3);
+	(1,'ADMIN','$2a$10$qe.2q0.icyebaiqar.7TguXLnmgqpVwIFdb53WsNRXBfkpx1..rRC',0,'大牛','010-123456789','88888888@gmail.com'),
+	(2,'ADMIN_ABC','$2a$10$XoGCTiHj8H7RchTXgVb8.u03rCUEkdFVvt916VILqUa4k68cnfcKa',1,'二牛','86-15503748989','tutoule@163.com'),
+	(3,'ADMIN_DEF','$2a$10$OYCTlY4DQqBX/jQvt5Z8bOWz/xD7BXXVGa4OfP07IdJvrKFsJWPx2',2,'张三','987654321','zhangsansheng@gmail.com'),
+  (4,'ADMIN_JDK','$2a$10$.kbEUwW1pHChwYua0UWlQ.ELTJRpoYBNKHtceXQZl8wvgdjxm.ocC',3,'Tonny','989899988','woxiangzhongjiang@126.com');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -29,15 +29,21 @@ public class DataController {
     @Autowired
     private IndicatorRepository indicatorRepository;
 
-    @ApiOperation(value = "Analysis the datas of the indicators")
-    @ApiResponse(code = 200, message = "OK")
-    //@PreAuthorize("hasRole('ROLE_ADMIN1')")
+    @ApiOperation(value = "Analysis the data of the indicators")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The data analysis has been created."),
+            @ApiResponse(code = 204, message = "There is no data in the indicator."),
+    })
+
+    @PreAuthorize("hasRole('ROLE_ADMIN1')")
     @GetMapping("/{indicatorName}")
     public ResponseEntity<List<DataAnalysisDTO>> doAnalysis(@PathVariable String indicatorName) {
-        DecimalFormat format = new DecimalFormat("0.00");
         List<IndicatorEntity> indicatorEntities = indicatorRepository.findByName(indicatorName);
         List<DataAnalysisDTO> results = new ArrayList<>();
         for(IndicatorEntity indicatorEntity : indicatorEntities) {
+            if(indicatorEntity.getIndicatorData().getStatus() != "通过") {
+                continue;
+            }
             DataAnalysisDTO dataAnalysisDTO = new DataAnalysisDTO();
 
             dataAnalysisDTO.setCompanyName(indicatorEntity.getCompany().getName());
@@ -52,6 +58,9 @@ public class DataController {
             dataAnalysisDTO.setData(new BigDecimal(dataSum).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
 
             results.add(dataAnalysisDTO);
+        }
+        if(results.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

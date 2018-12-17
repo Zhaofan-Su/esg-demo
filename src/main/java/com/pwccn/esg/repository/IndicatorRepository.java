@@ -12,4 +12,6 @@ public interface IndicatorRepository extends JpaRepository<IndicatorEntity, Inte
     List<IndicatorEntity> findByParentId(Integer parent);
 
     List<IndicatorEntity> findByName(String name);
+
+    List<IndicatorEntity> findByLevel(Integer level);
 }

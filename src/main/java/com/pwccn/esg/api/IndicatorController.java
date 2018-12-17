@@ -39,24 +39,35 @@ public class IndicatorController {
     @Autowired
     private IndicatorDataRepository indicatorDataRepository;
 
-//    @ApiOperation(value = "Get all indicators.")
-//    @GetMapping
-//    public ResponseEntity<List<IndicatorDTO>> all() {
-//        List<IndicatorEntity> indicators = indicatorRepository.findAll();
-//        List<IndicatorDTO> indicatorDTOs = new ArrayList<>();
-//        for (IndicatorEntity indicator : indicators) {
-//            indicatorDTOs.add(new IndicatorDTO(indicator));
-//        }
-//        return new ResponseEntity<>(indicatorDTOs, HttpStatus.OK);
-//    }
-
-    @ApiOperation(value = "Level 1 admin create an indicator for a company.")
+    @ApiOperation(value = "Get all of the level 1 indicators of a module.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Bad Request")
+            @ApiResponse(code = 200, message = "The module's all level 1 indicators have been gotten."),
+            @ApiResponse(code = 204, message = "The module has no level 1 indicators."),
+    })
+    @GetMapping("/{moduleId}/getAllLevelOne")
+    @PreAuthorize("hasRole('ROLE_ADMIN1')")
+    public ResponseEntity<List<IndicatorDTO>> getAllLevelOne(@PathVariable Integer moduleId) {
+        List<IndicatorEntity> indicatorEntities = indicatorRepository.findByLevel(1);
+        if(indicatorEntities.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        List<IndicatorDTO> result = new ArrayList<>();
+        for(IndicatorEntity indicatorEntity :indicatorEntities) {
+            if(indicatorEntity.getModule().getId() == moduleId) {
+                result.add(new IndicatorDTO(indicatorEntity));
+            }
+        }
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Level 1 and level 2 admin create an indicator for a company.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The indicator has been created successfully."),
+            @ApiResponse(code = 400, message = "The indicator has already exited.")
     })
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN1')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN1','ROLE_ADMIN2')")
     public ResponseEntity<Integer> create(@RequestBody IndicatorDTO indicatorDTO) {
         if(indicatorRepository.findById(indicatorDTO.getId()).isPresent()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -87,36 +98,13 @@ public class IndicatorController {
         return new ResponseEntity<>(result.getId(), HttpStatus.OK);
     }
 
-//    @ApiOperation(value = "Query some indicators.")
-//    @GetMapping(path = "/query")
-//    public ResponseEntity<List<IndicatorDTO>> query(@RequestParam Integer parent) {
-//        List<IndicatorEntity> indicators = indicatorRepository.findByParentId(parent);
-//        List<IndicatorDTO> indicatorDTOs = new ArrayList<>();
-//        for (IndicatorEntity indicator : indicators) {
-//            indicatorDTOs.add(new IndicatorDTO(indicator));
-//        }
-//        return new ResponseEntity<>(indicatorDTOs, HttpStatus.OK);
-//    }
-
-//    @ApiOperation(value = "Get an indicator")
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 200, message = "Ok", response = IndicatorDTO.class),
-//            @ApiResponse(code = 404, message = "Not Found"),
-//    })
-//    @GetMapping(path = "/{id}")
-//    public ResponseEntity<IndicatorDTO> get(@PathVariable Integer id) {
-//        Optional<IndicatorEntity> indicator = indicatorRepository.findById(id);
-//        return indicator.map(i -> new ResponseEntity<>(new IndicatorDTO(i), HttpStatus.OK))
-//                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-//    }
-
-    @ApiOperation(value = "Level 1 admin update a indicator's attributes by id.")
+    @ApiOperation(value = "Level 1 and level 2 admin update a indicator's attributes by id.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok"),
-            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 200, message = "The indicator's attributes have been updated."),
+            @ApiResponse(code = 404, message = "The indicator doesn't exit."),
     })
     @PutMapping(path = "/update")
-    @PreAuthorize("hasRole('ROLE_ADMIN1')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN1','ROLE_ADMIN2')")
     public ResponseEntity<IndicatorDTO> update(@RequestBody IndicatorDTO indicatorDTO) {
         Optional<IndicatorEntity> indicator = indicatorRepository.findById(indicatorDTO.getId());
         if (!indicator.isPresent()) {
@@ -133,10 +121,9 @@ public class IndicatorController {
 
     @ApiOperation(value = "Data operators update a level 3 indicator's data")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 200, message = "The indicator's data has been updated."),
     })
-    //@PreAuthorize("hasRole('ROLE_OPERATOR')")
+    @PreAuthorize("hasRole('ROLE_OPERATOR')")
     @PutMapping(path = "/updateData")
     public ResponseEntity updateData (@RequestBody IndicatorDTO indicatorDTO) {
         IndicatorEntity indicatorEntity = indicatorRepository.getOne(indicatorDTO.getId());
@@ -152,13 +139,34 @@ public class IndicatorController {
 
     }
 
-    @ApiOperation(value = "Level 1 admin delete a indicator by id.")
+    @ApiOperation("The data-auditor audits the data")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 200, message = "The indicator's data has been audited."),
+            @ApiResponse(code = 404, message = "The indicator doesn't exit."),
+    })
+    @PutMapping(value = "/auditData/{id}/{result}")
+    @PreAuthorize("hasRole('ROLE_AUDITOR')")
+    public ResponseEntity auditData(@PathVariable Integer id, @PathVariable String result) {
+        IndicatorEntity indicator = indicatorRepository.getOne(id);
+        if(indicator == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        IndicatorDataEntity indicatorData = indicator.getIndicatorData();
+        if(indicatorData == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        indicatorData.setStatus(result);
+        indicatorDataRepository.save(indicatorData);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Level 1 and level 2 admin delete a indicator by id.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The indicator has been deleted successfully."),
+            @ApiResponse(code = 404, message = "The indicator doesn't exit."),
     })
     @DeleteMapping(path = "/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN1')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN1','ROLE_ADMIN2')")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         IndicatorEntity indicator = indicatorRepository.getOne(id);
         if (indicator == null) {
@@ -190,8 +198,8 @@ public class IndicatorController {
 
     @ApiOperation(value = "Get all children of the indicator.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok"),
-            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 200, message = "The indicator's children have been gotten."),
+            @ApiResponse(code = 404, message = "The indicator doesn't exit."),
     })
     @GetMapping(path = "/{id}/children")
     public ResponseEntity<List<IndicatorDTO>> children(@PathVariable Integer id) {

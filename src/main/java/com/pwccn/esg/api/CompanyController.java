@@ -42,15 +42,12 @@ public class CompanyController {
     @Autowired
     private IndicatorDataRepository indicatorDataRepository;
 
-//    @ApiOperation(value = "Get the template of a company.")
-//    @GetMapping
-//    public ResponseEntity<TemplateDTO> search(@RequestBody CompanyEntity company) {
-//        TemplateEntity template = company.getTemplateEntity();
-//        return new ResponseEntity<>(new TemplateDTO(template), HttpStatus.OK);
-//    }
-
     @ApiOperation(value = "Get all companies")
-    @ApiResponse(code = 200, message = "OK")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The companies have all been gotten."),
+            @ApiResponse(code = 204, message = "There are no companies.")
+    })
+
     @GetMapping(value = "/all")
     @PreAuthorize("hasRole('ROLE_ADMIN1')")
     public ResponseEntity<List<CompanyDTO>> getAll() {
@@ -61,16 +58,18 @@ public class CompanyController {
                 companyDTOS.add(new CompanyDTO(companyEntity));
             }
         }
-
+        if(companyDTOS.isEmpty()) {
+            return new ResponseEntity<>(companyDTOS, HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity<>(companyDTOS, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get the admin users of a company by id.")
     @GetMapping(value = "/{id}/allAdminUsers")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 204, message = "No Content"),
-            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 200, message = "The admin users have all been gotten"),
+            @ApiResponse(code = 204, message = "The company has no admin user"),
+            @ApiResponse(code = 404, message = "The company doesn't exit"),
     })
     @PreAuthorize("hasRole('ROLE_ADMIN1')")
     public ResponseEntity<List<UserDTO>> getAdminUsers(@PathVariable Integer id) {
@@ -95,9 +94,9 @@ public class CompanyController {
 
     @ApiOperation(value = "the level 2 admin get all users of his company")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 204, message = "No Content"),
-            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 200, message = "The users of the company have all been gotten"),
+            @ApiResponse(code = 204, message = "There is no user in the company"),
+            @ApiResponse(code = 404, message = "The company doesn't exit"),
     })
     @GetMapping(value = "/{id}/getAllUsers")
     @PreAuthorize("hasRole('ROLE_ADMIN2')")
@@ -112,7 +111,7 @@ public class CompanyController {
         }
         List<UserDTO> userDTOS = new ArrayList<>();
         for(UserEntity userEntity : userEntities) {
-            if(userEntity.getRoles().get(0).getName() != "ROLE_ADMIN2") {
+            if(!userEntity.getRoles().get(0).getName().equals("ROLE_ADMIN2")) {
                 userDTOS.add(new UserDTO(userEntity));
             }
         }
@@ -122,12 +121,12 @@ public class CompanyController {
 
     @ApiOperation(value = "Create a company account.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 200, message = "The company has been created."),
+            @ApiResponse(code = 400, message = "There is a company with the same name."),
     })
     @PostMapping(value = "/create")
     @PreAuthorize("hasRole('ROLE_ADMIN1')")
-    public ResponseEntity<String> create(@RequestBody CompanyDTO companyDTO) {
+    public ResponseEntity create(@RequestBody CompanyDTO companyDTO) {
         if(companyRepository.findByName(companyDTO.getName()) == null) {
             List<Role> roles = new ArrayList<>();
             roles.add(roleRepository.findByName("ROLE_ADMIN2"));
@@ -136,16 +135,16 @@ public class CompanyController {
             userEntity.setRoles(roles);
             userEntity.setCompany(companyRepository.save(companyEntity));
             userRepository.save(userEntity);
-            return new ResponseEntity("Create a company successfully", HttpStatus.OK);
+            return new ResponseEntity(HttpStatus.OK);
         }
-        return new ResponseEntity<>("Already have a company with the same name", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
 
     }
 
     @ApiOperation(value = "Get modules of the company by id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 204, message = "No Content"),
+            @ApiResponse(code = 200, message = "The company's modules have all been gotten."),
+            @ApiResponse(code = 204, message = "The company has no modules."),
     })
     @GetMapping(path = "/getModules/{id}")
     public ResponseEntity<List<ModuleDTO>> getAllModules(@PathVariable Integer id) {
@@ -166,10 +165,10 @@ public class CompanyController {
     }
 
     @ApiOperation("Delete a company by id")
-    @ApiResponse(code = 200, message = "OK")
+    @ApiResponse(code = 200, message = "Delete the company successfully.")
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN1')")
-    public ResponseEntity<String> delete(@PathVariable Integer id) {
+    public ResponseEntity delete(@PathVariable Integer id) {
         CompanyEntity companyToDelete = companyRepository.getOne(id);
         List<UserEntity> users = companyToDelete.getUsers();
         for(UserEntity user : users) {
@@ -195,6 +194,6 @@ public class CompanyController {
             templateRepository.delete(template);
         }
         companyRepository.delete(companyToDelete);
-        return new ResponseEntity<>("success", HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

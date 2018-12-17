@@ -17,7 +17,6 @@ public class TemplateDTO {
         setName(template.getName());
         setCompanyName(template.getCompanyEntity().getName());
         setCompanyId(template.getCompanyEntity().getId());
-
     }
 
     public void setCompanyName(String companyName) {

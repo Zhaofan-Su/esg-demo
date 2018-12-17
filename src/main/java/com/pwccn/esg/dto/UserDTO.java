@@ -15,6 +15,9 @@ public class UserDTO {
     private String password;
     private String  role;
     private Integer companyId;
+    private String contactor;
+    private String telephone;
+    private String email;
 
     public UserDTO(){
 
@@ -28,6 +31,9 @@ public class UserDTO {
         if(userEntity.getRoles().get(0).getName() != "ROLE_ADMIN1") {
             setCompanyId(userEntity.getCompany().getId());
         }
+        setContactor(userEntity.getContactor());
+        setTelephone(userEntity.getTelephone());
+        setEmail(userEntity.getEmail());
     }
 
     public void setId(Integer id) {
@@ -70,5 +76,27 @@ public class UserDTO {
         this.companyId = companyId;
     }
 
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setContactor(String contactor) {
+        this.contactor = contactor;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public String getContactor() {
+        return contactor;
+    }
 }
