@@ -8,17 +8,17 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 -- -----------------------------------------------------
--- Schema esg_dev
+-- Schema esg
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Schema esg_dev
+-- Schema esg
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS esg DEFAULT CHARACTER SET utf8 ;
 USE esg ;
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`template`
+-- Table `esg`.`template`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`template` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -28,7 +28,7 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`module`
+-- Table `esg`.`module`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`module` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -39,7 +39,7 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`indicator`
+-- Table `esg`.`indicator`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`indicator` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -62,7 +62,7 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`indicator_data`
+-- Table `esg`.`indicator_data`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`indicator_data` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS esg.`indicator_data` (
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`template_has_module`
+-- Table `esg`.`template_has_module`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`template_has_module` (
   `template_id` INT NOT NULL,
@@ -99,7 +99,7 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`user`
+-- Table `esg`.`user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`user` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -120,7 +120,7 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`role`
+-- Table `esg`.`role`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`role` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS esg.`role` (
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`user_roles`
+-- Table `esg`.`user_roles`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`user_roles` (
   `user_id` INT NOT NULL,
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS esg.`user_roles` (
 
 
 -- -----------------------------------------------------
--- Table `esg_dev`.`company`
+-- Table `esg`.`company`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS esg.`company` (
   `id` INT NOT NULL AUTO_INCREMENT,

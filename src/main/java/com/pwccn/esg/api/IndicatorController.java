@@ -66,7 +66,7 @@ public class IndicatorController {
             @ApiResponse(code = 400, message = "The indicator has already exited.")
     })
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN1','ROLE_ADMIN2')")
+    @PreAuthorize("hasRole('ROLE_ADMIN1')")
     public ResponseEntity<Integer> create(@RequestBody IndicatorDTO indicatorDTO) {        //父指标
         Optional<IndicatorEntity> parentOption = indicatorRepository.findById(indicatorDTO.getParent());
         IndicatorEntity parent = new IndicatorEntity();
@@ -116,7 +116,7 @@ public class IndicatorController {
             @ApiResponse(code = 404, message = "The indicator doesn't exit."),
     })
     @PutMapping(path = "/update")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN1','ROLE_ADMIN2')")
+    @PreAuthorize("hasRole('ROLE_ADMIN1')")
     public ResponseEntity<IndicatorDTO> update(@RequestBody IndicatorDTO indicatorDTO) {
         Optional<IndicatorEntity> indicator = indicatorRepository.findById(indicatorDTO.getId());
         if (!indicator.isPresent()) {
