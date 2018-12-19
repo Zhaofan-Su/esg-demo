@@ -66,6 +66,27 @@ public class TemplateController {
         return new ResponseEntity<>(new TemplateDTO(module), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Get a template by name.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The template has been found."),
+            @ApiResponse(code = 404, message = "The template doesn't exit."),
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN1')")
+    @GetMapping(path = "/name/{name}")
+    public ResponseEntity<TemplateDTO> getByName(@PathVariable String name) {
+        TemplateEntity template = templateRepository.findByName(name);
+        CompanyEntity company = companyRepository.findByName(name);
+        if(template == null && company == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else if(template != null && company == null) {
+            return new ResponseEntity<>(new TemplateDTO(template), HttpStatus.OK);
+        } else {
+            TemplateEntity templateEntity = company.getTemplateEntity();
+            return new ResponseEntity<>(new TemplateDTO(templateEntity), HttpStatus.OK);
+        }
+
+    }
+
     @ApiOperation(value = "Level 1 admin delete a template by id.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The template has been deleted."),
@@ -91,14 +112,14 @@ public class TemplateController {
             @ApiResponse(code = 404, message = "The compant doesn't exit."),
     })
     @PreAuthorize("hasRole('ROLE_ADMIN2')")
-    @GetMapping(value = "/getTemplateId/{Cid}")
-    public ResponseEntity<Integer> getTemplateId(@PathVariable Integer Cid) {
+    @GetMapping(value = "/getTemplate/{Cid}")
+    public ResponseEntity<TemplateDTO> getTemplateId(@PathVariable Integer Cid) {
         CompanyEntity company = companyRepository.getOne(Cid);
         if(company == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         TemplateDTO template = new TemplateDTO(company.getTemplateEntity());
-        return new ResponseEntity<>(template.getId(), HttpStatus.OK);
+        return new ResponseEntity<>(template, HttpStatus.OK);
     }
 
 }

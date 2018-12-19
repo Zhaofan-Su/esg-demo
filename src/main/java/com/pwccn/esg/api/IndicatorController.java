@@ -6,10 +6,7 @@ import com.pwccn.esg.model.CompanyEntity;
 import com.pwccn.esg.model.IndicatorDataEntity;
 import com.pwccn.esg.model.IndicatorEntity;
 import com.pwccn.esg.model.ModuleEntity;
-import com.pwccn.esg.repository.CompanyRepository;
-import com.pwccn.esg.repository.IndicatorDataRepository;
-import com.pwccn.esg.repository.IndicatorRepository;
-import com.pwccn.esg.repository.ModuleRepository;
+import com.pwccn.esg.repository.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -33,6 +30,8 @@ public class IndicatorController {
     private ModuleRepository moduleRepository;
     @Autowired
     private IndicatorRepository indicatorRepository;
+    @Autowired
+    private TemplateRepository templateRepository;
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -68,16 +67,25 @@ public class IndicatorController {
     })
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN1','ROLE_ADMIN2')")
-    public ResponseEntity<Integer> create(@RequestBody IndicatorDTO indicatorDTO) {
-        if(indicatorRepository.findById(indicatorDTO.getId()).isPresent()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Integer> create(@RequestBody IndicatorDTO indicatorDTO) {        //父指标
         Optional<IndicatorEntity> parentOption = indicatorRepository.findById(indicatorDTO.getParent());
         IndicatorEntity parent = new IndicatorEntity();
         if(parentOption.isPresent()) {
             parent = parentOption.get();
+            for(IndicatorEntity i : parent.getChildren()) {
+                if(indicatorDTO.getName().equals(i.getName())) {
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+            }
         } else {
             parent = null;
+            if(indicatorDTO.getModuleId() != null) {
+                for(IndicatorEntity i : moduleRepository.getOne(indicatorDTO.getModuleId()).getIndicators()) {
+                    if(indicatorDTO.getName().equals(i.getName())) {
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                    }
+                }
+            }
         }
         IndicatorEntity indicator = new IndicatorEntity();
         IndicatorEntity.DTO2Entity(indicator, indicatorDTO, false, parent);
@@ -86,6 +94,10 @@ public class IndicatorController {
         IndicatorEntity result = new IndicatorEntity();
         if(indicatorDTO.getModuleId() != null) {
             ModuleEntity module = moduleRepository.findById(indicatorDTO.getModuleId()).get();
+            if(!company.getTemplateEntity().getModules().contains(module)) {
+                company.getTemplateEntity().getModules().add(module);
+                templateRepository.save(company.getTemplateEntity());
+            }
             indicator.setModule(module);
             result = indicatorRepository.save(indicator);
             if(result.getLevel() == 1) {

@@ -1,7 +1,15 @@
 server.port=8080
-spring.datasource.url=jdbc:mysql://localhost:3306/esg_dev?useSSL=false
+spring.datasource.url=jdbc:mysql://localhost:3306/esg?useSSL=false&allowPublicKeyRetrieval=true
 spring.datasource.username=<username>
 spring.datasource.password=<password>
 spring.jpa.hibernate.ddl-auto=validate
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
 spring.flyway.locations=classpath:/db
+
+spring.mail.default-encoding=UTF-8
+spring.mail.host=smtp.qq.com
+spring.mail.username=3531664670@qq.com
+spring.mail.password=rvttqpkoibjrdbfd
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true

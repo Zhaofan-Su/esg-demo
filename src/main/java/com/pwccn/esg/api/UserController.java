@@ -174,10 +174,12 @@ public class UserController {
         if(userEntity == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        if(userRepository.findByUsername(userDTO.getUsername()) != null) {
-            return new ResponseEntity(HttpStatus.CONFLICT);
+        if(userDTO.getUsername() != null) {
+            if(userRepository.findByUsername(userDTO.getUsername()) != null) {
+                return new ResponseEntity(HttpStatus.CONFLICT);
+            }
+            userEntity.setUsername(userDTO.getUsername());
         }
-        userEntity.setUsername(userDTO.getUsername());
         userEntity.setEmail(userDTO.getEmail());
         userEntity.setTelephone(userDTO.getTelephone());
         userEntity.setContactor(userDTO.getContactor());

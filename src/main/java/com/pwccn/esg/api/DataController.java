@@ -41,7 +41,7 @@ public class DataController {
         List<IndicatorEntity> indicatorEntities = indicatorRepository.findByName(indicatorName);
         List<DataAnalysisDTO> results = new ArrayList<>();
         for(IndicatorEntity indicatorEntity : indicatorEntities) {
-            if(indicatorEntity.getIndicatorData().getStatus() != "通过") {
+            if(!indicatorEntity.getIndicatorData().getStatus().equals("通过")) {
                 continue;
             }
             DataAnalysisDTO dataAnalysisDTO = new DataAnalysisDTO();

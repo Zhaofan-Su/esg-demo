@@ -1,6 +1,8 @@
 package com.pwccn.esg.repository;
 
+import com.pwccn.esg.model.CompanyEntity;
 import com.pwccn.esg.model.IndicatorEntity;
+import com.pwccn.esg.model.ModuleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +16,6 @@ public interface IndicatorRepository extends JpaRepository<IndicatorEntity, Inte
     List<IndicatorEntity> findByName(String name);
 
     List<IndicatorEntity> findByLevel(Integer level);
+
+    List<IndicatorEntity> findByCompanyAndModule(CompanyEntity companyEntity, ModuleEntity moduleEntity);
 }
