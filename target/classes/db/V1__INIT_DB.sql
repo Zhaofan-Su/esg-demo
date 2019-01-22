@@ -128,6 +128,17 @@ CREATE TABLE IF NOT EXISTS esg.`role` (
   PRIMARY KEY (`id`))
   ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `esg`.`company`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esg.`company` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `template_id` INT NULL,
+  `industry` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`))
+  ENGINE = InnoDB;
+
 
 -- -----------------------------------------------------
 -- Table `esg`.`user_roles`
@@ -151,16 +162,32 @@ CREATE TABLE IF NOT EXISTS esg.`user_roles` (
   ENGINE = InnoDB;
 
 
+
 -- -----------------------------------------------------
--- Table `esg`.`company`
+-- Table `esg`.`domain`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS esg.`company` (
+CREATE TABLE IF NOT EXISTS esg.`domain` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
-  `template_id` INT NULL,
-  `industry` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`))
   ENGINE = InnoDB;
+
+
+
+-- -----------------------------------------------------
+-- Table `esg`.`topic`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esg.`topic` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `domain_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_topic_domain1`(`domain_id`),
+  CONSTRAINT `fk_topic_domain1`
+  FOREIGN KEY (`domain_id`)
+  REFERENCES esg.`domain` (`id`))
+  ENGINE = InnoDB;
+
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

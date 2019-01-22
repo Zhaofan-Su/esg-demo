@@ -183,11 +183,25 @@ public class CompanyController {
                 Set<IndicatorEntity> indicators = module.getIndicators();
                 for(IndicatorEntity indicator : indicators) {
                     if(indicator.getLevel() == 3) {
+                        //delete the indicator's data
                         indicatorDataRepository.delete(indicator.getIndicatorData());
+                    } else {
+                        if(indicator.getLevel() == 1){
+                            indicator.getModule().getIndicators().remove(indicator);
+                            Set<IndicatorEntity> indicatorSecondS = indicator.getChildren();
+                            for(IndicatorEntity indicatorEntity : indicatorSecondS) {
+                                for(IndicatorEntity indicatorEntity1 :indicatorEntity.getChildren()) {
+                                    indicatorRepository.delete(indicatorEntity1);
+                                }
+                                indicatorRepository.delete(indicatorEntity);
+                            }
+                        }
+                        else {
+                            for(IndicatorEntity indicatorEntity : indicator.getChildren()) {
+                                indicatorRepository.delete(indicatorEntity);
+                            }
+                        }
                     }
-                    indicator.setParent(null);
-                    indicator.setModule(null);
-                    indicator.setCompany(null);
                     indicatorRepository.delete(indicator);
                 }
             }

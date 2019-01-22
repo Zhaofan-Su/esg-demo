@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.PostRemove;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,7 @@ public class IndicatorController {
         }
         List<IndicatorDTO> result = new ArrayList<>();
         for(IndicatorEntity indicatorEntity :indicatorEntities) {
-            if(indicatorEntity.getModule().getId() == moduleId) {
+            if(indicatorEntity.getModule().getId().equals(moduleId)) {
                 result.add(new IndicatorDTO(indicatorEntity));
             }
         }
@@ -226,4 +227,50 @@ public class IndicatorController {
         }
         return new ResponseEntity<>(indicatorDTOs, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "Level 2 admin get all children of the indicator.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The indicator's children have been gotten."),
+            @ApiResponse(code = 404, message = "The indicator doesn't exit."),
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN2')")
+    @GetMapping(path = "/admin2/{id}/children")
+    public ResponseEntity<List<IndicatorDTO>> getChildren3(@PathVariable Integer id) {
+        Optional<IndicatorEntity> indicator = indicatorRepository.findById(id);
+        if (!indicator.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Set<IndicatorEntity> children = indicator.get().getChildren();
+        List<IndicatorDTO> indicatorDTOs = new ArrayList<>();
+        for (IndicatorEntity child : children) {
+            if(child.getIndicatorData().getStatus().equals("通过")){
+                indicatorDTOs.add(new IndicatorDTO(child));
+            }
+        }
+        return new ResponseEntity<>(indicatorDTOs, HttpStatus.OK);
+    }
+
+    @ApiOperation("Level 2 admin submit datas")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Submit the data successfully."),
+            @ApiResponse(code = 404, message = "The data doesn't exit."),
+            @ApiResponse(code = 400, message = "The data's status is wrong.")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN2')")
+    @PutMapping("/submitData")
+    public ResponseEntity submitData(@RequestBody List<Integer> ids){
+        for(Integer id : ids) {
+            IndicatorEntity indicator = indicatorRepository.getOne(id);
+            if(indicator == null) {
+                return new ResponseEntity(HttpStatus.NOT_FOUND);
+            }
+            if(!indicator.getIndicatorData().getStatus().equals("通过")) {
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            }
+            indicator.getIndicatorData().setStatus("提交");
+            indicatorRepository.save(indicator);
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
+
